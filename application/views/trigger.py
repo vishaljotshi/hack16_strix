@@ -59,7 +59,7 @@ def startJob(hr_email,leaving_time):
 
 
 
-leaving_time='9:8'
+#leaving_time='9:8'
 print "Job scheduled!"
 startJob([hr_email],leaving_time)
 
