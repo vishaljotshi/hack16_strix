@@ -1,7 +1,7 @@
 from application import app
 from application import mysql
 from flask import send_from_directory,jsonify,render_template
-import json
+import json,ConfigParser
 
 @app.route("/")
 def welcome():
@@ -61,6 +61,30 @@ def getEmpById(id):
         except:
             return "Employee not found!!"
 
+@app.route("/interval")
+def getIntervalData():
+    cursor = mysql.connect().cursor()
+    cursor.execute("select hour(punch_time) time_hour,count(id) punches from punch_application group by hour(punch_time) order by time_hour asc")
+    data = cursor.fetchall()
+    if data is None:
+        return "No data"
+    else:
+        try:
+            return json.dumps(data)
+        except:
+            return "no data"
+
+@app.route("/restriction")
+def showRestrictions():
+    config = ConfigParser.ConfigParser()
+    config.read('configuration.cfg')
+    hr_email=config.get('mail','hr_email')
+    leaving_time=config.get('female timings','leaving_time')
+    return '{ "hr_email": "'+hr_email+'","leaving_time":"'+leaving_time+'"} '
+
+
+
+
 def makeDict(l):
     k={}
     for val in l:
@@ -68,10 +92,10 @@ def makeDict(l):
             k[val[1]]={'in':'','out':''}
         if val[3]=='in':
                 k[val[1]]['in']=val[0]
-                print 'in',k
+
         elif val[3]=='out':
                 k[val[1]]['out']=val[0]
-                print 'out',k
+
     return k
 
 def calculateInCount(data):

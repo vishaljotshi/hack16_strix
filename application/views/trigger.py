@@ -9,6 +9,12 @@ import ConfigParser
 
 empDetail=[]
 
+config = ConfigParser.ConfigParser()
+config.read('configuration.cfg')
+print config.sections()
+hr_email=config.get('mail','hr_email')
+leaving_time=config.get('female timings','leaving_time')
+
 def generateMailMessage():
     fempList=json.loads(urllib2.urlopen('http://localhost:5000/femaleStatus').read())
     mail_message="Following female employees are still in office after 8:30 pm :\n"
@@ -20,14 +26,14 @@ def generateMailMessage():
     return mail_message
 
 
-print  generateMailMessage()
+
 
 def checkFemaleEmployees():
     global hr_email,leaving_time
 
     print "info ::  Timed event triggered!"
     startJob(hr_email,leaving_time)
-    mail.send_email(hr_email,'default subject',generateMailMessage())
+    mail.send_email([hr_email],'Female Employees Still in office!',generateMailMessage())
 
 def startJob(hr_email,leaving_time):
     print hr_email
@@ -50,12 +56,10 @@ def startJob(hr_email,leaving_time):
 
 
 
-config = ConfigParser.ConfigParser()
-config.read('configuration.cfg')
 
-hr_email=config.get('mail','hr_email')
-leaving_time=config.get('female timings','leaving_time')
-#leaving_time='00:46'
+
+
+leaving_time='9:8'
 print "Job scheduled!"
 startJob([hr_email],leaving_time)
 

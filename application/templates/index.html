@@ -25,7 +25,7 @@
   function ExampleCtrl($scope, $http) {
     $scope.mostPercentage = 40;
     $scope.leastPercentage=100;
-    $scope.heading="Patient video analysis report";
+    $scope.heading="Employee Status Live Report";
     $scope.sortType="watch_count";
     $scope.sortReverse  = false;
     
@@ -70,11 +70,36 @@
       return j;
     }
     
-    //get all videos
-     $http.get('status').success(function(data) {
-      $scope.videoData = data;
+	//get floor emp count
+	$http.get('status/floor/2').success(function(data) {
+      $scope.secondFloor = data;
     });
- 
+	$http.get('status/floor/3').success(function(data) {
+      $scope.thirdFloor = data;
+    });
+	$http.get('status/floor/5').success(function(data) {
+      $scope.fifthFloor = data;
+    });
+	$http.get('status/floor/6').success(function(data) {
+      $scope.sixthFloor = data;
+    });
+	$http.get('status/floor/7').success(function(data) {
+      $scope.seventhFloor = data;
+    });
+	$http.get('status/floor/8').success(function(data) {
+      $scope.eighthFloor = data;
+    });
+	
+    //get employee timing restrictions
+	$http.get('restriction').success(function(data) {
+      $scope.restr = data;
+    });
+	
+	//get employee on 9th floor
+	$http.get('status/floor/9').success(function(data) {
+      $scope.empOn9th = data;
+    });
+ /*
    //get all LANGUAGES
      $http.get('languages').success(function(data) {
       $scope.languages = data;
@@ -96,7 +121,7 @@
       } ];
 
     }).error(function() {
-        alert("Could not connect to the server");
+        //alert("Could not connect to the server");
     });
 
     //get the least popular videos
@@ -136,14 +161,14 @@
       } ];
     });
     
+    */
     
-    
-    //Traffic analysis chart
-    $http.get('traffic/').success(function(data) {
+    //punch analysis chart
+    $http.get('/interval').success(function(data) {
       
       $scope.trafficLineData = [ {
         "key" : "Traffic results",
-        "values" : $scope.formatTime(data)
+        "values" : data
       } ];
     });
     
@@ -183,7 +208,7 @@
        
         
       }).error(function() {
-          alert("could not connect to server");
+          //alert("could not connect to server");
       });
     }
     
@@ -201,7 +226,7 @@
         } ];
 
       }).error(function() {
-          alert("could not connect to server");
+          //alert("could not connect to server");
       });
     }
     
@@ -309,7 +334,7 @@
     $scope.lineToolTipFunction = function(){
       return function(key, x, y, e, graph) {
           return  '<h4>At ' + x + ':00 hours </h4>' +
-                '<p>' +  y  + ' videos watched</p>'
+                '<p>' +  y  + ' Punches</p>'
       }
     }
 
@@ -341,33 +366,25 @@
 
 				<div class="panel-group">
 					<div class="panel panel-info">
-						<div class="panel-heading">Video analysis</div>
+						<div class="panel-heading">Employee status</div>
 						<div class="panel-body">
 							<a href="#" class='list-group-item'
-								ng-click="display('mostPopularChart')">Top 5 popular videos</a>
+								ng-click="display('mostPopularChart')">Employees on floors</a>
 							<a href="#" class='list-group-item'
-								ng-click="display('leastPopularChart')">Least 5 popular
-								videos</a>
-							<a href="#" class='list-group-item'
-								ng-click="display('languagePopularChart')">Language Specific popular videos</a>
+								ng-click="display('leastPopularChart')">Cafeteria status</a>
+							
 						</div>
 					</div>
 				</div>
 
 				<div class="panel-group">
 					<div class="panel panel-info">
-						<div class="panel-heading">Best suited videos</div>
+						<div class="panel-heading">Restrictions and Rules</div>
 						<div class="panel-body">
 							<div class="list-group">
 								<a href="#" class='list-group-item'
-									ng-click="display('morningPopularChart')">Popular videos in
-									Morning</a> <a href="#" class='list-group-item'
-									ng-click="display('eveningPopularChart')">Popular videos in
-									evening</a> <a href="#" class='list-group-item'
-									ng-click="display('nightPopularChart')">Popular videos at
-									Night</a> <a href="#" class='list-group-item'
-									ng-click="display('customPopularChart')">Popular videos by
-									custom time</a>
+									ng-click="display('morningPopularChart')">Women employee Time Restriction
+									</a> 
 							</div>
 						</div>
 					</div>
@@ -379,27 +396,13 @@
 						<div class="panel-body">
 							<div class="list-group">
 								<a href="#" class='list-group-item'
-									ng-click="display('trafficChart')">Video traffic</a> <a
-									href="#" class='list-group-item'
-									ng-click="display('patientBarChart')">Videos watched by
-									patient</a>
+									ng-click="display('trafficChart')">Punch-in analysis</a> 
 							</div>
 						</div>
 					</div>
 				</div>
 
-				<div class="panel-group">
-					<div class="panel panel-info">
-						<div class="panel-heading">Meta Data</div>
-						<div class="panel-body">
-							<div class="list-group">
-								<a href="#" class='list-group-item'
-									ng-click="display('videoTable')">All video List</a> <a href="#"
-									class='list-group-item' ng-click="display('optimisedVideoLength')">Most optimised video length</a>
-							</div>
-						</div>
-					</div>
-				</div>
+				
 
 
 			</div>
@@ -410,87 +413,63 @@
 					<!--1st panel  -->
 
 					<div class="panel-body" ng-show="arr['mostPopularChart']">
-						<h2 class="panel-heading">Top 5 Popular video chart</h2>
+						<h2 class="panel-heading">Employees on each floor : </h2>
 
-						<div class="col-sm-4">
-							<div class="input-group">
-								<input type="number" min="0" max="100"
-									placeholder="Enter Average percentage" class="form-control"
-									ng-model="per"> <span class="input-group-btn"> <input
-									class="btn btn-default" type="button"
-									ng-click="updateGraph1(per)" value="View">
-								</span>
-							</div>
-							<!-- /input-group -->
-						</div>
-						<div class="col-sm-4"></div>
-						<!-- /.col-lg-6 -->
+						
 
 						<div class="col-sm-12">
-							<div class="panel panel-info col-md-6">
-
-								<nvd3-pie-chart id="exampleId" data="popularVideoData"
-									x="xFunction()" y="yFunction()" width="550" height="550"
-									showLabels="true" pieLabelsOutside="true" showValues="true"
-									labelType="percent" labelThreshold="0.05"
-									tooltipContent="toolTipContentFunction()" showLegend="true"
-									legendPosition="bottom" tooltips="true"> <svg></svg>
-								</nvd3-pie-chart>
-							</div>
-							<div class="panel panel-info col-md-6">
-
-								<nvd3-multi-bar-chart data="popularBarData" id="barChart"
-									width="550" height="550"
-									xAxisTickFormat="xAxisTickFormatFunction()" showXAxis="true"
-									showYAxis="true" tooltips="true" noData="No data to display"
-									staggeredLabels="true" tooltipcontent="barToolTipFunction()">
-								<svg></svg> </nvd3-multi-bar-chart>
-
-							</div>
+							<table class="table table-striped table-bordered">
+							<tr>
+							<th>Floor number</th><th>No. of employees present</th>
+							</tr>
+							<tr>
+							<td>2nd</td>
+							<td >{{secondFloor}}</td>
+							</tr>
+							
+							<tr>
+							<td>3rd</td>
+							<td ng-model="thirdFloor">{{thirdFloor}}</td>
+							</tr>
+							
+							<tr>
+							<td>5th</td>
+							<td ng-model="fifthFloor">{{fifthFloor}}</td>
+							</tr>
+							
+							<tr>
+							<td>6th</td>
+							<td ng-model="sixthFloor">{{sixthFloor}}</td>
+							</tr>
+							
+							<tr>
+							<td>7th</td>
+							<td ng-model="seventhFloor">{{seventhFloor}}</td>
+							</tr>
+							
+							<tr>
+							<td>8th</td>
+							<td ng-model="eighthFloor">{{eighthFloor}}</td>
+							</tr>
+							
+							
+							</table>
 						</div>
 					</div>
 
 					<!--2nd panel  -->
 					<div class="panel-body" ng-show="arr['leastPopularChart']">
-						<h2 class="panel-heading">5 Least popular video chart</h2>
+						<h2 class="panel-heading">Cafeteria status</h2>
 
-						<div class="col-sm-4">
-							<div class="input-group">
-								<input type="number" min="0" max="100"
-									placeholder="Enter Average percentage" class="form-control"
-									ng-model="maxPer"> <span class="input-group-btn">
-									<input class="btn btn-default" type="button"
-									ng-click="updateGraph2(maxPer)" value="View">
-								</span>
-							</div>
-							<!-- /input-group -->
-						</div>
-						<div class="col-sm-4"></div>
-						<!-- /.col-lg-6 -->
+						
 
 						<div class="col-sm-12">
-
-							<div class="panel panel-info col-md-6">
-
-								<nvd3-pie-chart id="leastPopular" data="leastPopularVideoData"
-									x="xFunction()" y="yFunction()" width="550" height="550"
-									showLabels="true" pieLabelsOutside="true" showValues="true"
-									labelType="percent" labelThreshold="0.05"
-									tooltipContent="toolTipContentFunction()" showLegend="true"
-									legendPosition="bottom" tooltips="true"> <svg></svg>
-								</nvd3-pie-chart>
-							</div>
-							<div class="panel panel-info col-md-6">
-
-								<nvd3-multi-bar-chart data="leastPopularBarData"
-									id="leastPopularbarChart" width="550" height="550"
-									noData="No data to display"
-									xAxisTickFormat="lxAxisTickFormatFunction()" showXAxis="true"
-									showYAxis="true" tooltips="true"
-									tooltipcontent="barToolTipFunction()"> <svg></svg>
-								</nvd3-multi-bar-chart>
-
-							</div>
+						<h3>
+						Total seats : 100<br>
+						Current employees in Cafeteria  : {{empOn9th}}
+						
+						</h3>
+							
 						</div>
 					</div>
 					
@@ -540,26 +519,10 @@
 					<!-- 3rd panel  -->
 
 					<div class="panel-body" ng-show="arr['morningPopularChart']">
-						<h2 class="panel-heading">Popular videos during morning(12am-12pm)</h2>
-						<div class="panel panel-info col-md-6">
-							<nvd3-pie-chart id="popularMorning" data="morningVideo"
-								x="xFunction()" y="yFunction()" width="550" height="550"
-								showLabels="true" pieLabelsOutside="true" showValues="true"
-								labelType="percent" labelThreshold="0.05"
-								tooltipContent="toolTipContentFunction()" showLegend="true"
-								legendPosition="bottom" tooltips="true"> <svg></svg>
-							</nvd3-pie-chart>
-						</div>
-						<div class="panel panel-info col-md-6">
-
-							<nvd3-multi-bar-chart data="morningBarData"
-								id="barPopularMorning" width="550" height="550"
-								xAxisTickFormat="xAxisIntervalFunction(morningVideo)"
-								showXAxis="true" showYAxis="true" tooltips="true"
-								tooltipcontent="barToolTipFunction()"> <svg></svg>
-							</nvd3-multi-bar-chart>
-
-						</div>
+						<h2 class="panel-heading">Women timing settings</h2>
+						Restriction settings <br><br>
+						HR Email :  {{restr.hr_email}}<br>
+						Time till women can stay : {{restr.leaving_time}}
 					</div>
 
 
@@ -676,7 +639,7 @@
 					<!--6TH panel (traffic)  -->
 
 					<div class="panel-body" ng-show="arr['trafficChart']">
-						<h2 class="panel-heading">24 hours video traffic analysis</h2>
+						<h2 class="panel-heading">24 hours punch application analysis</h2>
 						<div class="panel panel-info col-md-10 svg-class">
 
 
